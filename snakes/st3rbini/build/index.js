@@ -103,25 +103,30 @@ function move(gameState) {
     // opponents = gameState.board.snakes;
     // Are there any safe moves left?
     const safeMoves = Object.keys(isMoveSafe).filter((key) => isMoveSafe[key]);
-    /*
-    if(safeMoves.length > 1) {
-      // Pick the move that takes the snake far away from the tail
-      safeMoves.filter(move => {
-        return (move === 'down' && myTail.y > myHead.y) ||
-          (move === 'up' && myTail.y < myHead.y) ||
-          (move === 'left' && myTail.x > myHead.x) ||
-          (move === 'right' && myTail.x < myHead.x);
-      });
-    }  */
+    const pickMove = () => {
+        const nextMove = safeMoves[Math.floor(Math.random() * safeMoves.length)];
+        for (let i = 0; i < safeMoves.length; i++) {
+            if (nextMove !== 'up' && myTail.y < myHead.y)
+                return nextMove;
+            else if (nextMove === 'down' && myTail.y > myHead.y)
+                return nextMove;
+            else if (nextMove === 'right' && myTail.x < myHead.x)
+                return nextMove;
+            else if (nextMove === 'left' && myTail.x > myHead.x)
+                return nextMove;
+        }
+        return nextMove;
+    };
     // TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
     // food = gameState.board.food;
-    let nextMove = "down";
-    if (safeMoves.length > 0) {
-        nextMove = safeMoves[Math.floor(Math.random() * safeMoves.length)];
-    }
-    console.log(`MOVE ${gameState.turn}: ${nextMove}`);
-    lastMove = nextMove;
-    return { move: nextMove };
+    /* let nextMove = "down";
+     if (safeMoves.length > 0) {
+       nextMove = safeMoves[Math.floor(Math.random() * safeMoves.length)];
+     }
+   
+     console.log(`MOVE ${gameState.turn}: ${nextMove}`)
+     lastMove = nextMove; */
+    return { move: pickMove() };
 }
 (0, server_1.default)({
     info: info,

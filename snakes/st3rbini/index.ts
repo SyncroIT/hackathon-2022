@@ -13,7 +13,7 @@
 import runServer from './server';
 import { GameState, InfoResponse, MoveResponse } from './types';
 
-type Moves = "T"|"L"|"R"|"B";
+type Moves = "T" | "L" | "R" | "B";
 let lastMove = "";
 
 // info is called when you create your Battlesnake on play.battlesnake.com
@@ -42,15 +42,15 @@ function end(gameState: GameState): void {
   console.log("GAME OVER\n");
 }
 
-function getNumberOfMoves(isMoveSafe: { [key:string]: boolean; }) {
-  return Number(isMoveSafe.up)+Number(isMoveSafe.left)+Number(isMoveSafe.down)+Number(isMoveSafe.right);
+function getNumberOfMoves(isMoveSafe: { [key: string]: boolean; }) {
+  return Number(isMoveSafe.up) + Number(isMoveSafe.left) + Number(isMoveSafe.down) + Number(isMoveSafe.right);
 }
 
 // move is called on every turn and returns your next move
 // Valid moves are "up", "down", "left", or "right"
 // See https://docs.battlesnake.com/api/example-move for available data
 function move(gameState: GameState): MoveResponse {
-  let isMoveSafe: { [key:string]: boolean; } = {
+  let isMoveSafe: { [key: string]: boolean; } = {
     up: true,
     down: true,
     left: true,
@@ -60,7 +60,7 @@ function move(gameState: GameState): MoveResponse {
   // We've included code to prevent your Battlesnake from moving backwards
   const myHead = gameState.you.body[0];
   const myNeck = gameState.you.body[1];
-  const myTail = gameState.you.body[gameState.you.body.length-1];
+  const myTail = gameState.you.body[gameState.you.body.length - 1];
 
   if (myNeck.x < myHead.x) {        // Neck is left of head, don't move left
     isMoveSafe.left = false;
@@ -76,40 +76,40 @@ function move(gameState: GameState): MoveResponse {
   }
 
   // Disable moves against boundaries
-  if(myHead.y+1 === gameState.board.height)
+  if (myHead.y + 1 === gameState.board.height)
     isMoveSafe.up = false;
-  
-  if(myHead.y-1 < 0 )
+
+  if (myHead.y - 1 < 0)
     isMoveSafe.down = false;
 
-  if(myHead.x+1 === gameState.board.width) 
+  if (myHead.x + 1 === gameState.board.width)
     isMoveSafe.right = false;
 
-  if(myHead.x-1 < 0)
+  if (myHead.x - 1 < 0)
     isMoveSafe.left = false;
 
 
   // Disable moves against its own body
   gameState.you.body.forEach(particle => {
     // Stessa Y 
-    if(myHead.y === particle.y) {
+    if (myHead.y === particle.y) {
       // Obstacle on left 
-      if(particle.x === myHead.x-1) 
+      if (particle.x === myHead.x - 1)
         isMoveSafe.left = false;
 
       // Obstacle on right
-      if(particle.x === myHead.x+1)
+      if (particle.x === myHead.x + 1)
         isMoveSafe.right = false;
     }
 
     // Stessa X
-    if(myHead.x === particle.x) {
+    if (myHead.x === particle.x) {
       // Obstacle on up
-      if(particle.y === myHead.y+1)
+      if (particle.y === myHead.y + 1)
         isMoveSafe.up = false;
 
       // Obstacle on down
-      if(particle.y === myHead.y-1)
+      if (particle.y === myHead.y - 1)
         isMoveSafe.down = false;
     }
   });
@@ -122,30 +122,35 @@ function move(gameState: GameState): MoveResponse {
   // opponents = gameState.board.snakes;
 
   // Are there any safe moves left?
-  const safeMoves = Object.keys(isMoveSafe).filter((key:string) => isMoveSafe[key]);
+  const safeMoves = Object.keys(isMoveSafe).filter((key: string) => isMoveSafe[key]);
+
+const pickMove = (): string => {
+  const nextMove = safeMoves[Math.floor(Math.random() * safeMoves.length)];
+    for (let i = 0; i < safeMoves.length; i++) {
+      if (nextMove !== 'up' && myTail.y < myHead.y)
+        return nextMove;
+      else if (nextMove === 'down' && myTail.y > myHead.y)
+        return nextMove;
+      else if (nextMove === 'right' && myTail.x < myHead.x)
+        return nextMove;
+      else if (nextMove === 'left' && myTail.x >  myHead.x)
+        return nextMove;
+      }
+  return nextMove;
+}
   
-  /*
-  if(safeMoves.length > 1) {
-    // Pick the move that takes the snake far away from the tail
-    safeMoves.filter(move => {
-      return (move === 'down' && myTail.y > myHead.y) ||
-        (move === 'up' && myTail.y < myHead.y) ||
-        (move === 'left' && myTail.x > myHead.x) ||
-        (move === 'right' && myTail.x < myHead.x);
-    });
-  }  */
 
   // TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
   // food = gameState.board.food;
 
-  let nextMove = "down";
-  if(safeMoves.length > 0) {
+ /* let nextMove = "down";
+  if (safeMoves.length > 0) {
     nextMove = safeMoves[Math.floor(Math.random() * safeMoves.length)];
   }
 
   console.log(`MOVE ${gameState.turn}: ${nextMove}`)
-  lastMove = nextMove;
-  return { move: nextMove };
+  lastMove = nextMove; */
+  return { move: pickMove() };
 }
 
 
